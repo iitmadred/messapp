@@ -21,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${jakarta.variable} h-full antialiased`}>
+    <html lang="en" className={`${jakarta.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="min-h-full flex bg-background text-foreground font-sans">
         <Sidebar />
         <main className="flex-1 min-h-screen lg:ml-64 pt-14 lg:pt-0">
