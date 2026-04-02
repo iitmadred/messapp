@@ -1,11 +1,15 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Wallet,
   CalendarDays,
   TrendingUp,
   ShoppingBag,
+  PlusCircle,
+  ScanLine,
+  ArrowRight,
 } from "lucide-react";
 import { StatsCard } from "@/components/StatsCard";
 import { ExpenseChart } from "@/components/ExpenseChart";
@@ -17,7 +21,7 @@ import { formatCurrency } from "@/lib/utils";
 // Make sure to define Purchase so TypeScript doesn't complain
 // Note: We use type 'any' or redeclare to match Prisma's output dynamically
 // We can just import DailyStats and Purchase if they still exist in types.
-import { DailyStats, Purchase } from "@/lib/types";
+import { DailyStats } from "@/lib/types";
 
 export default function DashboardPage() {
   const [todayTotal, setTodayTotal] = useState(0);
@@ -87,6 +91,44 @@ export default function DashboardPage() {
         <p className="text-muted text-sm mt-1">
           Track your daily mess expenses at a glance
         </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in-up"
+        style={{ animationDelay: "60ms" }}
+      >
+        <Link
+          href="/add"
+          className="group rounded-2xl border border-card-border bg-card p-5 shadow-sm hover:shadow-md hover:border-accent-blue/40 transition-all duration-200"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-accent-blue-light text-accent-blue flex items-center justify-center">
+              <PlusCircle className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent-blue group-hover:translate-x-0.5 transition-all duration-200" />
+          </div>
+          <h2 className="mt-4 text-base font-bold">Add Purchase</h2>
+          <p className="mt-1 text-sm text-muted">
+            Manually log a new item in seconds.
+          </p>
+        </Link>
+
+        <Link
+          href="/scan"
+          className="group rounded-2xl border border-card-border bg-card p-5 shadow-sm hover:shadow-md hover:border-accent-purple/40 transition-all duration-200"
+        >
+          <div className="flex items-center justify-between">
+            <div className="w-10 h-10 rounded-xl bg-accent-purple-light text-accent-purple flex items-center justify-center">
+              <ScanLine className="w-5 h-5" />
+            </div>
+            <ArrowRight className="w-4 h-4 text-muted group-hover:text-accent-purple group-hover:translate-x-0.5 transition-all duration-200" />
+          </div>
+          <h2 className="mt-4 text-base font-bold">Scan Receipt</h2>
+          <p className="mt-1 text-sm text-muted">
+            Upload a bill and auto-fill details with AI.
+          </p>
+        </Link>
       </div>
 
       {/* Stats */}
