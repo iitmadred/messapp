@@ -110,7 +110,7 @@ export default function DashboardPage() {
           </div>
           <h2 className="mt-4 text-base font-bold">Add Purchase</h2>
           <p className="mt-1 text-sm text-muted">
-            Manually log a new item in seconds.
+            Log a new item in seconds.
           </p>
         </Link>
 
@@ -126,7 +126,7 @@ export default function DashboardPage() {
           </div>
           <h2 className="mt-4 text-base font-bold">Scan Receipt</h2>
           <p className="mt-1 text-sm text-muted">
-            Upload a bill and auto-fill details with AI.
+            Upload a receipt and auto-fill details with AI.
           </p>
         </Link>
       </div>
