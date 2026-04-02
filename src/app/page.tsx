@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Wallet,
   CalendarDays,
   TrendingUp,
   ShoppingBag,
+  PlusCircle,
+  Camera,
 } from "lucide-react";
 import { StatsCard } from "@/components/StatsCard";
 import { ExpenseChart } from "@/components/ExpenseChart";
@@ -79,14 +82,26 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="animate-fade-in-up">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-          Dashboard
-        </h1>
-        <p className="text-muted text-sm mt-1">
-          Track your daily mess expenses at a glance
-        </p>
+      {/* Header & Quick Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 animate-fade-in-up">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-muted text-sm mt-1">
+            Track your daily mess expenses at a glance
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link href="/add" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-card-border hover:border-accent-blue hover:bg-accent-blue-light/30 transition-all duration-200">
+            <PlusCircle className="w-4 h-4 text-accent-blue" />
+            <span className="text-sm font-semibold">Manual</span>
+          </Link>
+          <Link href="/scan" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+            <Camera className="w-4 h-4" />
+            <span className="text-sm font-semibold">Scan</span>
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
