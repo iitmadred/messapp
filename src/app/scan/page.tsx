@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, AlertCircle, Edit3, Save } from "lucide-react";
 import { DropZone } from "@/components/DropZone";
 import { ReceiptScanResult, CATEGORIES } from "@/lib/types";
-import { addPurchase } from "@/lib/storage";
+import { addPurchaseAction } from "@/app/actions";
 import { getStoredApiKey } from "@/lib/storage";
 import {
   fileToBase64,
@@ -107,25 +107,33 @@ export default function ScanReceiptPage() {
     setEditDescription("");
   };
 
-  const handleSave = () => {
-    if (!editName.trim() || !editCost) return;
+  const [isSaving, setIsSaving] = useState(false);
 
-    addPurchase({
-      itemName: editName.trim(),
-      cost: parseFloat(editCost),
-      date: editDate || getTodayString(),
-      time: editTime || getCurrentTime(),
-      category: editCategory,
-      description: editDescription,
-      source: "ai-scan",
-      items: scanResult?.list_of_items,
-    });
+  const handleSave = async () => {
+    if (!editName.trim() || !editCost || isSaving) return;
 
-    setShowSuccess(true);
-    setTimeout(() => {
-      setShowSuccess(false);
-      handleClear();
-    }, 1500);
+    setIsSaving(true);
+    try {
+      await addPurchaseAction({
+        itemName: editName.trim(),
+        cost: parseFloat(editCost),
+        date: editDate || getTodayString(),
+        time: editTime || getCurrentTime(),
+        category: editCategory,
+        description: editDescription,
+        source: "ai-scan",
+      });
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        handleClear();
+      }, 1500);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const hasResults = scanResult || error;
@@ -299,16 +307,16 @@ export default function ScanReceiptPage() {
 
           <button
             onClick={handleSave}
-            disabled={!editName.trim() || !editCost}
+            disabled={!editName.trim() || !editCost || isSaving}
             className={cn(
               "w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm shadow-lg transition-all duration-200",
               editName.trim() && editCost
-                ? "bg-gradient-to-r from-accent-green to-accent-blue text-white hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]"
+                ? "bg-gradient-to-r from-accent-green to-accent-blue text-white hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50"
                 : "bg-card-border text-muted cursor-not-allowed"
             )}
           >
             <Save className="w-4 h-4" />
-            Confirm & Save
+            {isSaving ? "Saving..." : "Confirm & Save"}
           </button>
         </div>
       )}

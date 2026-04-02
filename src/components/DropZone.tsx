@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { Upload, Image as ImageIcon, X } from "lucide-react";
+import { Upload, Image as ImageIcon, X, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DropZoneProps {
@@ -19,6 +19,7 @@ export function DropZone({
 }: DropZoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -90,46 +91,70 @@ export function DropZone({
   }
 
   return (
-    <div
-      onDragEnter={handleDragIn}
-      onDragLeave={handleDragOut}
-      onDragOver={handleDrag}
-      onDrop={handleDrop}
-      onClick={() => fileRef.current?.click()}
-      className={cn(
-        "drop-zone rounded-2xl p-10 text-center cursor-pointer transition-all duration-200",
-        isDragging
-          ? "active border-accent-blue bg-accent-blue-light/50 scale-[1.01]"
-          : "hover:border-muted-light hover:bg-card"
-      )}
-    >
+    <div className="space-y-4">
+      <div
+        onDragEnter={handleDragIn}
+        onDragLeave={handleDragOut}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+        onClick={() => fileRef.current?.click()}
+        className={cn(
+          "drop-zone rounded-2xl p-10 text-center cursor-pointer transition-all duration-200",
+          isDragging
+            ? "active border-accent-blue bg-accent-blue-light/50 scale-[1.01]"
+            : "hover:border-muted-light hover:bg-card"
+        )}
+      >
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          onChange={handleFileChange}
+          className="hidden"
+        />
+        <div
+          className={cn(
+            "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 transition-all",
+            isDragging
+              ? "bg-accent-blue/10 scale-110"
+              : "bg-card-border/40"
+          )}
+        >
+          {isDragging ? (
+            <ImageIcon className="w-7 h-7 text-accent-blue" />
+          ) : (
+            <Upload className="w-7 h-7 text-muted" />
+          )}
+        </div>
+        <p className="text-sm font-semibold text-foreground">
+          {isDragging ? "Drop your receipt here" : "Upload receipt image"}
+        </p>
+        <p className="text-xs text-muted-light mt-1.5">
+          Drag & drop or click to browse • JPG, PNG, WebP
+        </p>
+      </div>
+
+      <div className="flex items-center justify-center gap-4 py-1">
+        <div className="h-px bg-card-border flex-1"></div>
+        <span className="text-xs font-semibold text-muted-light uppercase tracking-wider">or</span>
+        <div className="h-px bg-card-border flex-1"></div>
+      </div>
+
+      <button
+        onClick={() => cameraRef.current?.click()}
+        className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl border border-card-border bg-card text-foreground font-semibold text-sm shadow-sm hover:shadow-md hover:border-accent-blue hover:text-accent-blue transition-all duration-200"
+      >
+        <Camera className="w-4 h-4" />
+        Take Photo
+      </button>
       <input
-        ref={fileRef}
+        ref={cameraRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
+        capture="environment"
         onChange={handleFileChange}
         className="hidden"
       />
-      <div
-        className={cn(
-          "w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 transition-all",
-          isDragging
-            ? "bg-accent-blue/10 scale-110"
-            : "bg-card-border/40"
-        )}
-      >
-        {isDragging ? (
-          <ImageIcon className="w-7 h-7 text-accent-blue" />
-        ) : (
-          <Upload className="w-7 h-7 text-muted" />
-        )}
-      </div>
-      <p className="text-sm font-semibold text-foreground">
-        {isDragging ? "Drop your receipt here" : "Upload receipt image"}
-      </p>
-      <p className="text-xs text-muted-light mt-1.5">
-        Drag & drop or click to browse • JPG, PNG, WebP
-      </p>
     </div>
   );
 }

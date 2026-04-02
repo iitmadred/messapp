@@ -10,13 +10,8 @@ import {
   Eye,
   EyeOff,
 } from "lucide-react";
-import {
-  getStoredApiKey,
-  setStoredApiKey,
-  exportPurchases,
-  clearAllPurchases,
-  getPurchases,
-} from "@/lib/storage";
+import { getStoredApiKey, setStoredApiKey } from "@/lib/storage";
+import { getPurchasesAction, clearAllPurchasesAction } from "@/app/actions";
 import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
@@ -28,7 +23,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     setApiKey(getStoredApiKey());
-    setPurchaseCount(getPurchases().length);
+    getPurchasesAction().then((data) => setPurchaseCount(data.length));
   }, []);
 
   const handleSaveKey = () => {
@@ -37,9 +32,10 @@ export default function SettingsPage() {
     setTimeout(() => setKeySaved(false), 2000);
   };
 
-  const handleExport = () => {
-    const data = exportPurchases();
-    const blob = new Blob([data], { type: "application/json" });
+  const handleExport = async () => {
+    const data = await getPurchasesAction();
+    const jsonString = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -48,8 +44,8 @@ export default function SettingsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleClear = () => {
-    clearAllPurchases();
+  const handleClear = async () => {
+    await clearAllPurchasesAction();
     setPurchaseCount(0);
     setShowClearConfirm(false);
   };
@@ -144,7 +140,7 @@ export default function SettingsPage() {
             <div>
               <h2 className="text-sm font-bold">Export Data</h2>
               <p className="text-xs text-muted-light">
-                {purchaseCount} purchase{purchaseCount !== 1 ? "s" : ""} saved
+                {purchaseCount} purchase{purchaseCount !== 1 ? "s" : ""} saved in Database
               </p>
             </div>
           </div>

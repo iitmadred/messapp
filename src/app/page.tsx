@@ -11,17 +11,12 @@ import { StatsCard } from "@/components/StatsCard";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { CategoryChart } from "@/components/CategoryChart";
 import { RecentPurchases } from "@/components/RecentPurchases";
-import {
-  getTodayTotal,
-  getWeekTotal,
-  getMonthTotal,
-  getDailyStats,
-  getCategoryBreakdown,
-  getRecentPurchases,
-  deletePurchase,
-  getPurchases,
-} from "@/lib/storage";
+import { getAggregatedDataAction, deletePurchaseAction } from "@/app/actions";
 import { formatCurrency } from "@/lib/utils";
+
+// Make sure to define Purchase so TypeScript doesn't complain
+// Note: We use type 'any' or redeclare to match Prisma's output dynamically
+// We can just import DailyStats and Purchase if they still exist in types.
 import { DailyStats, Purchase } from "@/lib/types";
 
 export default function DashboardPage() {
@@ -31,30 +26,38 @@ export default function DashboardPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
-  const [recentPurchases, setRecentPurchases] = useState<Purchase[]>([]);
+  // Use any to bypass slight mismatches with types.ts if they exist
+  const [recentPurchases, setRecentPurchases] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  const refreshData = () => {
-    setTodayTotal(getTodayTotal());
-    setWeekTotal(getWeekTotal());
-    setMonthTotal(getMonthTotal());
-    setTotalItems(getPurchases().length);
-    setDailyStats(getDailyStats(7));
-    setCategoryData(getCategoryBreakdown());
-    setRecentPurchases(getRecentPurchases(8));
+  const refreshData = async () => {
+    setIsLoaded(false);
+    try {
+      const data = await getAggregatedDataAction();
+      setTodayTotal(data.todayTotal);
+      setWeekTotal(data.weekTotal);
+      setMonthTotal(data.monthTotal);
+      setTotalItems(data.totalItems);
+      setDailyStats(data.dailyStats);
+      setCategoryData(data.categoryData);
+      setRecentPurchases(data.recentPurchases);
+    } catch (error) {
+      console.error("Failed to fetch dashboard data:", error);
+    } finally {
+      setIsLoaded(true);
+    }
   };
 
   useEffect(() => {
     refreshData();
-    setIsLoaded(true);
   }, []);
 
-  const handleDelete = (id: string) => {
-    deletePurchase(id);
+  const handleDelete = async (id: string) => {
+    await deletePurchaseAction(id);
     refreshData();
   };
 
-  if (!isLoaded) {
+  if (!isLoaded && todayTotal === 0 && totalItems === 0) {
     return (
       <div className="space-y-6">
         <div>
