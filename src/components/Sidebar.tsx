@@ -10,6 +10,7 @@ import {
   UtensilsCrossed,
   Menu,
   X,
+  List,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/add", label: "Add Purchase", icon: PlusCircle },
   { href: "/scan", label: "Scan Receipt", icon: ScanLine },
+  { href: "/history", label: "History", icon: List },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
