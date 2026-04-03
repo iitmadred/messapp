@@ -18,23 +18,38 @@ export async function addPurchaseAction(data: {
   description: string;
   source: string;
 }) {
-  const purchase = await prisma.purchase.create({
-    data,
-  });
-  revalidatePath("/");
-  return purchase;
+  try {
+    console.log("Adding purchase to DB:", data);
+    const purchase = await prisma.purchase.create({
+      data,
+    });
+    console.log("Successfully added purchase with ID:", purchase.id);
+    
+    // Explicitly revalidate all paths to clear cache
+    revalidatePath("/", "layout");
+    
+    return purchase;
+  } catch (error) {
+    console.error("Database connection/creation error in addPurchaseAction:", error);
+    throw error;
+  }
 }
 
 export async function deletePurchaseAction(id: string) {
-  await prisma.purchase.delete({
-    where: { id },
-  });
-  revalidatePath("/");
+  try {
+    await prisma.purchase.delete({
+      where: { id },
+    });
+    revalidatePath("/", "layout");
+  } catch (error) {
+    console.error("Error deleting purchase:", error);
+    throw error;
+  }
 }
 
 export async function clearAllPurchasesAction() {
   await prisma.purchase.deleteMany({});
-  revalidatePath("/");
+  revalidatePath("/", "layout");
 }
 
 export async function getAggregatedDataAction() {

@@ -1,0 +1,12 @@
+// test-prisma3.js
+const { PrismaClient } = require('@prisma/client');
+try {
+  const p = new PrismaClient();
+  console.log("Initialized OK");
+  p.purchase.findMany()
+    .then(r => console.log('Purchases:', r.length))
+    .catch(e => console.error(e))
+    .finally(() => p.$disconnect());
+} catch (e) {
+  console.error("Init Error:", e);
+}

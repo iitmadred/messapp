@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Check, AlertCircle, Edit3, Save } from "lucide-react";
 import { DropZone } from "@/components/DropZone";
 import { ReceiptScanResult, CATEGORIES } from "@/lib/types";
-import { addPurchaseAction } from "@/app/actions";
 import { getStoredApiKey } from "@/lib/storage";
 import {
   fileToBase64,
@@ -108,29 +107,41 @@ export default function ScanReceiptPage() {
   };
 
   const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const handleSave = async () => {
     if (!editName.trim() || !editCost || isSaving) return;
 
     setIsSaving(true);
+    setSaveError(null);
     try {
-      await addPurchaseAction({
-        itemName: editName.trim(),
-        cost: parseFloat(editCost),
-        date: editDate || getTodayString(),
-        time: editTime || getCurrentTime(),
-        category: editCategory,
-        description: editDescription,
-        source: "ai-scan",
+      const res = await fetch("/api/purchases", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          itemName: editName.trim(),
+          cost: parseFloat(editCost),
+          date: editDate || getTodayString(),
+          time: editTime || getCurrentTime(),
+          category: editCategory,
+          description: editDescription,
+          source: "ai-scan",
+        }),
       });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || `Server error ${res.status}`);
+      }
 
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
         handleClear();
       }, 1500);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Save scan error:", error);
+      setSaveError(error.message || "Failed to save. Please try again.");
     } finally {
       setIsSaving(false);
     }
@@ -304,6 +315,13 @@ export default function ScanReceiptPage() {
               className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm placeholder:text-muted-light resize-none"
             />
           </div>
+
+          {saveError && (
+            <div className="flex items-start gap-2 p-3 rounded-xl bg-danger-light border border-danger/20 text-xs text-danger">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              {saveError}
+            </div>
+          )}
 
           <button
             onClick={handleSave}

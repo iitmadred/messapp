@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Check, Plus, ShoppingCart, Egg, Milk, Wheat, Loader2 } from "lucide-react";
+import { Check, Plus, ShoppingCart, Egg, Milk, Wheat, Loader2, AlertCircle } from "lucide-react";
 import { CATEGORIES } from "@/lib/types";
-import { addPurchaseAction } from "@/app/actions";
 import { getTodayString, getCurrentTime, inferCategory } from "@/lib/utils";
 
 const quickAddPresets = [
@@ -16,7 +14,6 @@ const quickAddPresets = [
 ];
 
 export default function AddPurchasePage() {
-  const router = useRouter();
   const [itemName, setItemName] = useState("");
   const [cost, setCost] = useState("");
   const [date, setDate] = useState(getTodayString());
@@ -24,14 +21,48 @@ export default function AddPurchasePage() {
   const [category, setCategory] = useState<string>("Other Groceries");
   const [description, setDescription] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  const resetForm = () => {
+    setItemName("");
+    setCost("");
+    setDate(getTodayString());
+    setTime(getCurrentTime());
+    setCategory("Other Groceries");
+    setDescription("");
+    setErrorMsg(null);
+  };
 
   const handleItemNameChange = (value: string) => {
     setItemName(value);
     const inferred = inferCategory(value);
-    if (inferred !== "Other") {
+    if (inferred !== "Other Groceries") {
       setCategory(inferred);
     }
+  };
+
+  const savePurchase = async (payload: {
+    itemName: string;
+    cost: number;
+    date: string;
+    time: string;
+    category: string;
+    description: string;
+    source: string;
+  }) => {
+    const res = await fetch("/api/purchases", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ error: "Unknown error" }));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+
+    return res.json();
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,8 +70,9 @@ export default function AddPurchasePage() {
     if (!itemName.trim() || !cost || isPending) return;
 
     setIsPending(true);
+    setErrorMsg(null);
     try {
-      await addPurchaseAction({
+      await savePurchase({
         itemName: itemName.trim(),
         cost: parseFloat(cost),
         date,
@@ -53,25 +85,22 @@ export default function AddPurchasePage() {
       setShowSuccess(true);
       setTimeout(() => {
         setShowSuccess(false);
-        setItemName("");
-        setCost("");
-        setDate(getTodayString());
-        setTime(getCurrentTime());
-        setCategory("Other");
-        setDescription("");
+        resetForm();
       }, 1500);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Add purchase error:", error);
+      setErrorMsg(error.message || "Failed to save purchase. Please try again.");
     } finally {
       setIsPending(false);
     }
   };
 
-  const handleQuickAdd = async (preset: typeof quickAddPresets[0]) => {
+  const handleQuickAdd = async (preset: (typeof quickAddPresets)[0]) => {
     if (isPending) return;
     setIsPending(true);
+    setErrorMsg(null);
     try {
-      await addPurchaseAction({
+      await savePurchase({
         itemName: preset.name,
         cost: preset.cost,
         date: getTodayString(),
@@ -83,8 +112,9 @@ export default function AddPurchasePage() {
 
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 1500);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Quick add error:", error);
+      setErrorMsg(error.message || "Failed to save purchase.");
     } finally {
       setIsPending(false);
     }
@@ -98,7 +128,7 @@ export default function AddPurchasePage() {
           Add Purchase
         </h1>
         <p className="text-muted text-sm mt-1">
-          Quickly log a new mess purchase
+          Log a new raw material or grocery purchase
         </p>
       </div>
 
@@ -126,6 +156,17 @@ export default function AddPurchasePage() {
         </div>
       </div>
 
+      {/* Error */}
+      {errorMsg && (
+        <div className="flex items-start gap-3 p-4 rounded-2xl bg-danger-light border border-danger/20 animate-fade-in-up">
+          <AlertCircle className="w-5 h-5 text-danger flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm font-semibold text-foreground">Failed to save</p>
+            <p className="text-xs text-muted mt-1">{errorMsg}</p>
+          </div>
+        </div>
+      )}
+
       {/* Form */}
       <form
         onSubmit={handleSubmit}
@@ -141,9 +182,9 @@ export default function AddPurchasePage() {
             type="text"
             value={itemName}
             onChange={(e) => handleItemNameChange(e.target.value)}
-            placeholder="e.g., Chicken Biryani"
+            placeholder="e.g., Fresh Tomatoes, Chicken Breast"
             disabled={isPending}
-            className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light disabled:opacity-50"
+            className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
             required
           />
         </div>
@@ -162,7 +203,7 @@ export default function AddPurchasePage() {
               onChange={(e) => setCost(e.target.value)}
               placeholder="0.00"
               disabled={isPending}
-              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
               required
             />
           </div>
@@ -175,7 +216,7 @@ export default function AddPurchasePage() {
               value={date}
               onChange={(e) => setDate(e.target.value)}
               disabled={isPending}
-              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
             />
           </div>
         </div>
@@ -190,7 +231,7 @@ export default function AddPurchasePage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               disabled={isPending}
-              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
@@ -208,7 +249,7 @@ export default function AddPurchasePage() {
               value={time}
               onChange={(e) => setTime(e.target.value)}
               disabled={isPending}
-              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50"
+              className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
             />
           </div>
         </div>
@@ -225,7 +266,7 @@ export default function AddPurchasePage() {
             placeholder="Any additional notes..."
             rows={2}
             disabled={isPending}
-            className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light resize-none disabled:opacity-50"
+            className="w-full px-4 py-3 rounded-xl border border-card-border bg-background text-sm transition-all duration-200 placeholder:text-muted-light resize-none disabled:opacity-50 focus:outline-none focus:border-accent-blue focus:ring-1 focus:ring-accent-blue"
           />
         </div>
 
@@ -235,8 +276,12 @@ export default function AddPurchasePage() {
           disabled={isPending}
           className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent-blue to-accent-purple text-white font-semibold text-sm shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 transition-all duration-200"
         >
-          {isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-          {isPending ? "Adding..." : "Add Purchase"}
+          {isPending ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <Plus className="w-4 h-4" />
+          )}
+          {isPending ? "Saving..." : "Add Purchase"}
         </button>
       </form>
 
@@ -247,7 +292,7 @@ export default function AddPurchasePage() {
             <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
               <Check className="w-4 h-4" />
             </div>
-            <span className="text-sm font-semibold">Purchase added!</span>
+            <span className="text-sm font-semibold">Purchase saved successfully!</span>
           </div>
         </div>
       )}

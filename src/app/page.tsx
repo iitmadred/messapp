@@ -14,13 +14,8 @@ import { StatsCard } from "@/components/StatsCard";
 import { ExpenseChart } from "@/components/ExpenseChart";
 import { CategoryChart } from "@/components/CategoryChart";
 import { RecentPurchases } from "@/components/RecentPurchases";
-import { getAggregatedDataAction, deletePurchaseAction } from "@/app/actions";
 import { formatCurrency } from "@/lib/utils";
-
-// Make sure to define Purchase so TypeScript doesn't complain
-// Note: We use type 'any' or redeclare to match Prisma's output dynamically
-// We can just import DailyStats and Purchase if they still exist in types.
-import { DailyStats, Purchase } from "@/lib/types";
+import { DailyStats } from "@/lib/types";
 
 export default function DashboardPage() {
   const [todayTotal, setTodayTotal] = useState(0);
@@ -29,14 +24,15 @@ export default function DashboardPage() {
   const [totalItems, setTotalItems] = useState(0);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
-  // Use any to bypass slight mismatches with types.ts if they exist
   const [recentPurchases, setRecentPurchases] = useState<any[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const refreshData = async () => {
     setIsLoaded(false);
     try {
-      const data = await getAggregatedDataAction();
+      const res = await fetch("/api/dashboard", { cache: "no-store" });
+      if (!res.ok) throw new Error("Failed to fetch dashboard");
+      const data = await res.json();
       setTodayTotal(data.todayTotal);
       setWeekTotal(data.weekTotal);
       setMonthTotal(data.monthTotal);
@@ -45,7 +41,7 @@ export default function DashboardPage() {
       setCategoryData(data.categoryData);
       setRecentPurchases(data.recentPurchases);
     } catch (error) {
-      console.error("Failed to fetch dashboard data:", error);
+      console.error("Dashboard fetch error:", error);
     } finally {
       setIsLoaded(true);
     }
@@ -56,11 +52,11 @@ export default function DashboardPage() {
   }, []);
 
   const handleDelete = async (id: string) => {
-    await deletePurchaseAction(id);
+    await fetch(`/api/purchases/${id}`, { method: "DELETE" });
     refreshData();
   };
 
-  if (!isLoaded && todayTotal === 0 && totalItems === 0) {
+  if (!isLoaded) {
     return (
       <div className="space-y-6">
         <div>
@@ -89,15 +85,21 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-muted text-sm mt-1">
-            Track your daily mess expenses at a glance
+            Track your daily raw material expenses at a glance
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/add" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-card-border hover:border-accent-blue hover:bg-accent-blue-light/30 transition-all duration-200">
+          <Link
+            href="/add"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-card border border-card-border hover:border-accent-blue hover:bg-accent-blue-light/30 transition-all duration-200"
+          >
             <PlusCircle className="w-4 h-4 text-accent-blue" />
             <span className="text-sm font-semibold">Manual</span>
           </Link>
-          <Link href="/scan" className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+          <Link
+            href="/scan"
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-accent-purple to-accent-blue text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+          >
             <Camera className="w-4 h-4" />
             <span className="text-sm font-semibold">Scan</span>
           </Link>
@@ -131,7 +133,11 @@ export default function DashboardPage() {
           icon={ShoppingBag}
           label="Total Purchases"
           value={String(totalItems)}
-          subtitle={totalItems > 0 ? `avg ${formatCurrency(monthTotal / Math.max(totalItems, 1))}` : undefined}
+          subtitle={
+            totalItems > 0
+              ? `avg ${formatCurrency(monthTotal / Math.max(totalItems, 1))}`
+              : undefined
+          }
           accentColor="purple"
           delay={180}
         />
