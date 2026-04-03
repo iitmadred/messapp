@@ -20,7 +20,7 @@ import { DailyStats } from "@/lib/types";
 export default function DashboardPage() {
   const [todayTotal, setTodayTotal] = useState(0);
   const [weekTotal, setWeekTotal] = useState(0);
-  const [monthTotal, setMonthTotal] = useState(0);
+  const [totalValue, setTotalValue] = useState(0);
   const [totalItems, setTotalItems] = useState(0);
   const [dailyStats, setDailyStats] = useState<DailyStats[]>([]);
   const [categoryData, setCategoryData] = useState<{ name: string; value: number }[]>([]);
@@ -35,7 +35,7 @@ export default function DashboardPage() {
       const data = await res.json();
       setTodayTotal(data.todayTotal);
       setWeekTotal(data.weekTotal);
-      setMonthTotal(data.monthTotal);
+      setTotalValue(data.totalValue);
       setTotalItems(data.totalItems);
       setDailyStats(data.dailyStats);
       setCategoryData(data.categoryData);
@@ -124,8 +124,8 @@ export default function DashboardPage() {
         />
         <StatsCard
           icon={TrendingUp}
-          label="This Month"
-          value={formatCurrency(monthTotal)}
+          label="Total Value"
+          value={formatCurrency(totalValue)}
           accentColor="orange"
           delay={120}
         />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
           value={String(totalItems)}
           subtitle={
             totalItems > 0
-              ? `avg ${formatCurrency(monthTotal / Math.max(totalItems, 1))}`
+              ? `avg ${formatCurrency(totalValue / Math.max(totalItems, 1))}`
               : undefined
           }
           accentColor="purple"

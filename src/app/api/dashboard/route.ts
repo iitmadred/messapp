@@ -31,12 +31,14 @@ export async function GET() {
     let todayTotal = 0;
     let weekTotal = 0;
     let monthTotal = 0;
+    let totalValue = 0;
     const categoryBreakdown: Record<string, number> = {};
 
     allPurchases.forEach((p: Purchase) => {
       if (p.date === today) todayTotal += p.cost;
       if (p.date >= weekAgoStr) weekTotal += p.cost;
       if (p.date >= monthStart) monthTotal += p.cost;
+      totalValue += p.cost;
       categoryBreakdown[p.category] = (categoryBreakdown[p.category] || 0) + p.cost;
     });
 
@@ -58,6 +60,7 @@ export async function GET() {
       todayTotal,
       weekTotal,
       monthTotal,
+      totalValue,
       totalItems: allPurchases.length,
       dailyStats,
       categoryData: Object.entries(categoryBreakdown).map(([name, value]) => ({ name, value })),
