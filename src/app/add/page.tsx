@@ -2,17 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Check, Plus, Coffee, UtensilsCrossed, Cookie, Sun, Loader2 } from "lucide-react";
+import { Check, Plus, ShoppingCart, Egg, Milk, Wheat, Loader2 } from "lucide-react";
 import { CATEGORIES } from "@/lib/types";
 import { addPurchaseAction } from "@/app/actions";
 import { getTodayString, getCurrentTime, inferCategory } from "@/lib/utils";
 
 const quickAddPresets = [
-  { name: "Tea", cost: 2, icon: Coffee, category: "Beverages" },
-  { name: "Coffee", cost: 5, icon: Coffee, category: "Beverages" },
-  { name: "Lunch", cost: 15, icon: UtensilsCrossed, category: "Lunch" },
-  { name: "Snack", cost: 5, icon: Cookie, category: "Snacks" },
-  { name: "Breakfast", cost: 10, icon: Sun, category: "Breakfast" },
+  { name: "Milk", cost: 10, icon: Milk, category: "Dairy & Eggs" },
+  { name: "Eggs", cost: 15, icon: Egg, category: "Dairy & Eggs" },
+  { name: "Rice", cost: 25, icon: Wheat, category: "Grains & Pulses" },
+  { name: "Onions", cost: 5, icon: ShoppingCart, category: "Vegetables" },
+  { name: "Chicken", cost: 30, icon: ShoppingCart, category: "Meat & Seafood" },
 ];
 
 export default function AddPurchasePage() {
@@ -21,7 +21,7 @@ export default function AddPurchasePage() {
   const [cost, setCost] = useState("");
   const [date, setDate] = useState(getTodayString());
   const [time, setTime] = useState(getCurrentTime());
-  const [category, setCategory] = useState<string>("Other");
+  const [category, setCategory] = useState<string>("Other Groceries");
   const [description, setDescription] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
   const [isPending, setIsPending] = useState(false);

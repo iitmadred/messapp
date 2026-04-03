@@ -27,7 +27,7 @@ export default function ScanReceiptPage() {
   const [editCost, setEditCost] = useState("");
   const [editDate, setEditDate] = useState("");
   const [editTime, setEditTime] = useState("");
-  const [editCategory, setEditCategory] = useState("Other");
+  const [editCategory, setEditCategory] = useState("Other Groceries");
   const [editDescription, setEditDescription] = useState("");
 
   const handleFileSelected = async (selectedFile: File) => {
@@ -87,7 +87,7 @@ export default function ScanReceiptPage() {
       setEditCost("");
       setEditDate(getTodayString());
       setEditTime(getCurrentTime());
-      setEditCategory("Other");
+      setEditCategory("Other Groceries");
       setEditDescription("");
     } finally {
       setIsProcessing(false);
@@ -103,7 +103,7 @@ export default function ScanReceiptPage() {
     setEditCost("");
     setEditDate("");
     setEditTime("");
-    setEditCategory("Other");
+    setEditCategory("Other Groceries");
     setEditDescription("");
   };
 

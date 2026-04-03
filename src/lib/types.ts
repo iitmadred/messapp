@@ -31,36 +31,36 @@ export interface DailyStats {
 }
 
 export type Category =
-  | "Breakfast"
-  | "Lunch"
-  | "Dinner"
-  | "Snacks"
-  | "Beverages"
-  | "Other";
+  | "Vegetables"
+  | "Meat & Seafood"
+  | "Dairy & Eggs"
+  | "Grains & Pulses"
+  | "Spices & Oils"
+  | "Other Groceries";
 
 export const CATEGORIES: Category[] = [
-  "Breakfast",
-  "Lunch",
-  "Dinner",
-  "Snacks",
-  "Beverages",
-  "Other",
+  "Vegetables",
+  "Meat & Seafood",
+  "Dairy & Eggs",
+  "Grains & Pulses",
+  "Spices & Oils",
+  "Other Groceries",
 ];
 
 export const CATEGORY_COLORS: Record<Category, string> = {
-  Breakfast: "#F59E0B",
-  Lunch: "#3B82F6",
-  Dinner: "#8B5CF6",
-  Snacks: "#10B981",
-  Beverages: "#EC4899",
-  Other: "#6B7280",
+  "Vegetables": "#10B981",           // Emerald Green
+  "Meat & Seafood": "#EF4444",       // Red
+  "Dairy & Eggs": "#F59E0B",         // Amber
+  "Grains & Pulses": "#D97706",      // Orange/Brown
+  "Spices & Oils": "#8B5CF6",        // Purple
+  "Other Groceries": "#6B7280",      // Gray
 };
 
 export const CATEGORY_ICONS: Record<Category, string> = {
-  Breakfast: "☀️",
-  Lunch: "🍽️",
-  Dinner: "🌙",
-  Snacks: "🍿",
-  Beverages: "☕",
-  Other: "📦",
+  "Vegetables": "🥬",
+  "Meat & Seafood": "🍗",
+  "Dairy & Eggs": "🥚",
+  "Grains & Pulses": "🌾",
+  "Spices & Oils": "🧂",
+  "Other Groceries": "🛒",
 };

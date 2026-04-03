@@ -44,47 +44,60 @@ export function fileToBase64(file: File): Promise<string> {
 export function inferCategory(itemName: string): string {
   const lower = itemName.toLowerCase();
   if (
-    lower.includes("tea") ||
-    lower.includes("coffee") ||
-    lower.includes("juice") ||
-    lower.includes("water") ||
-    lower.includes("drink") ||
-    lower.includes("soda") ||
-    lower.includes("milk")
+    lower.includes("vegetable") ||
+    lower.includes("onion") ||
+    lower.includes("tomato") ||
+    lower.includes("potato") ||
+    lower.includes("carrot") ||
+    lower.includes("spinach") ||
+    lower.includes("garlic") ||
+    lower.includes("ginger") ||
+    lower.includes("coriander")
   )
-    return "Beverages";
+    return "Vegetables";
   if (
-    lower.includes("breakfast") ||
+    lower.includes("chicken") ||
+    lower.includes("meat") ||
+    lower.includes("fish") ||
+    lower.includes("mutton") ||
+    lower.includes("beef") ||
+    lower.includes("prawn") ||
+    lower.includes("sausage")
+  )
+    return "Meat & Seafood";
+  if (
+    lower.includes("milk") ||
     lower.includes("egg") ||
-    lower.includes("toast") ||
-    lower.includes("paratha") ||
-    lower.includes("idli") ||
-    lower.includes("dosa")
+    lower.includes("paneer") ||
+    lower.includes("cheese") ||
+    lower.includes("butter") ||
+    lower.includes("ghee") ||
+    lower.includes("curd") ||
+    lower.includes("yogurt")
   )
-    return "Breakfast";
+    return "Dairy & Eggs";
   if (
-    lower.includes("lunch") ||
     lower.includes("rice") ||
-    lower.includes("curry") ||
     lower.includes("dal") ||
-    lower.includes("roti") ||
-    lower.includes("biryani") ||
-    lower.includes("thali")
+    lower.includes("lentil") ||
+    lower.includes("flour") ||
+    lower.includes("atta") ||
+    lower.includes("wheat") ||
+    lower.includes("bread") ||
+    lower.includes("pasta") ||
+    lower.includes("oats")
   )
-    return "Lunch";
+    return "Grains & Pulses";
   if (
-    lower.includes("dinner") ||
-    lower.includes("naan") ||
-    lower.includes("paneer")
+    lower.includes("oil") ||
+    lower.includes("masala") ||
+    lower.includes("chilli") ||
+    lower.includes("turmeric") ||
+    lower.includes("cumin") ||
+    lower.includes("salt") ||
+    lower.includes("sugar") ||
+    lower.includes("spice")
   )
-    return "Dinner";
-  if (
-    lower.includes("snack") ||
-    lower.includes("chips") ||
-    lower.includes("biscuit") ||
-    lower.includes("samosa") ||
-    lower.includes("vada")
-  )
-    return "Snacks";
-  return "Other";
+    return "Spices & Oils";
+  return "Other Groceries";
 }
